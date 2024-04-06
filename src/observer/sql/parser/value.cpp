@@ -19,15 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include <string.h>
 #include <stdlib.h> 
-bool fl=true;
+bool isValid = true; // 用于存储日期验证的结果
 const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans","dates"};
-
-
-bool correctDate(int y,int m,int d){
-  static int mon[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  bool leap = (y%400==0 || (y%100 && y%4==0));
-  return y > 0 && (m > 0) && (m <= 12) && (d > 0) && (d <= ((m==2 && leap)?1:0) + mon[m]);
-}
 
 bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
 
@@ -115,7 +108,6 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_                = length;
     } break;
-    //添加DATES类型
     case DATES:{
       num_value_.date_value_=*(int*)data;
       length_               = length;
@@ -158,19 +150,22 @@ void Value::set_string(const char *s, int len /*= 0*/)
 
 void Value::set_date(int val)
 {
-    fl=correctDate(val/10000,(val%10000)/100,val%100);
-    if(fl==false){
-      //在解析不符合规范条件下需要只输出FALIURE并结束当前语句
-
+    static int mon[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int year = val / 10000;
+    int month = (val % 10000) / 100;
+    int day = val % 100;
+    
+    bool leap = is_leap_year(year);
+    
+    // 检查年份、月份和日期的有效性
+    isValid = year > 0 && month > 0 && month <= 12 && day > 0 && day <= ((month == 2 && leap) ? 29 : mon[month]);
+    
+    if (isValid) {
+        attr_type_ = DATES;
+        num_value_.date_value_ = val;
+        length_ = sizeof(val);
     }
-    else{
-      attr_type_=DATES;
-      num_value_.date_value_=val;
-      length_=sizeof(val);
-    }
-}
-
-void Value::set_value(const Value &value)
+}void Value::set_value(const Value &value)
 {
   switch (value.attr_type_) {
     case INTS: {

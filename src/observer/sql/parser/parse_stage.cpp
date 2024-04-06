@@ -59,7 +59,7 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
   }
 
   sql_event->set_sql_node(std::move(sql_node));
-  if(fl==false)
+  if(!isValid)
     sql_result->set_return_code(RC::EMPTY);
   return RC::SUCCESS;
 }
