@@ -158,8 +158,6 @@ void Value::set_date(int val) {
 
   if (y <= 0 || m < 1 || m > 12 || d < 1|| d > daysInMonth[m - 1]) {
     isValid = false;
-    throw ("Invalid year, month, or day.");
-    return;
   }
   else {
   attr_type_ = DATES;
