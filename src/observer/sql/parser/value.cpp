@@ -19,8 +19,15 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include <string.h>
 #include <stdlib.h> 
-bool isValid = true; // 用于存储日期验证的结果
+bool fl=true;
 const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans","dates"};
+
+
+bool correctDate(int y,int m,int d){
+  static int mon[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  bool leap = (y%400==0 || (y%100 && y%4==0));
+  return y > 0 && (m > 0) && (m <= 12) && (d > 0) && (d <= ((m==2 && leap)?1:0) + mon[m]);
+}
 
 bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
 
@@ -149,22 +156,18 @@ void Value::set_string(const char *s, int len /*= 0*/)
   length_ = str_value_.length();
 }
 
-void Value::set_date(int val) {
-  int y = val / 10000;
-  int m = (val % 10000) / 100;
-  int d = val % 100;
-  bool isLeap = is_leap_year(y);
-  static int daysInMonth[] = {31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+void Value::set_date(int val)
+{
+    fl=correctDate(val/10000,(val%10000)/100,val%100);
+    if(fl==false){
+      //在解析不符合规范条件下需要只输出FALIURE并结束当前语句
 
-  if (y <= 0 || m < 1 || m > 12 || d < 1|| d > daysInMonth[m - 1]) {
-    isValid = false;
-  }
-  else {
-  attr_type_ = DATES;
-  num_value_.date_value_ = val;
-  length_ = sizeof(val);
-  }
-
+    }
+    else{
+      attr_type_=DATES;
+      num_value_.date_value_=val;
+      length_=sizeof(val);
+    }
 }
 
 void Value::set_value(const Value &value)
