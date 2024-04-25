@@ -9,29 +9,29 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by wangyunlai.wyl on 2024/01/15
+// Created by Longda on 2021/4/13.
 //
 
-#include "gtest/gtest.h"
-#include "common/math/integer_generator.h"
+#pragma once
 
-using namespace std;
-using namespace common;
+#include "common/seda/stage.h"
 
-TEST(IntegerGenerator, test)
-{
-  const int        min = 1;
-  const int        max = 120000;
-  IntegerGenerator generator(min, max);
-  for (int i = 0; i < 1000000; i++) {
-    int value = generator.next();
-    ASSERT_GE(value, min);
-    ASSERT_LE(value, max);
-  }
-}
+namespace common {
 
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+class ExampleStage : public Stage {
+public:
+  ~ExampleStage();
+  static Stage *make_stage(const std::string &tag);
+
+protected:
+  // common function
+  ExampleStage(const char *tag);
+  bool set_properties();
+
+  bool initialize();
+  void cleanup();
+  void handle_event(StageEvent *event);
+  void callback_event(StageEvent *event, CallbackContext *context);
+};
+}  // namespace common
+

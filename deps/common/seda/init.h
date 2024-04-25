@@ -9,41 +9,32 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/01/11.
+// Created by Longda on 2010
 //
 
-#pragma once
+#ifndef __COMMON_SEDA_INIT_H__
+#define __COMMON_SEDA_INIT_H__
 
-#include <functional>
+// Basic includes
+#include <assert.h>
+#include <signal.h>
+#include <iostream>
+#include <set>
+#include <sstream>
+#include <string>
+#include <vector>
 
+#include "common/conf/ini.h"
+#include "common/defs.h"
+#include "common/os/process_param.h"
 namespace common {
 
 /**
- * @brief 可执行对象接口
- * @ingroup ThreadPool
+ * start the seda process, do this will trigger all threads
  */
-class Runnable
-{
-public:
-  Runnable()          = default;
-  virtual ~Runnable() = default;
+int init_seda(ProcessParam *process_cfg);
 
-  virtual void run() = 0;
-};
-
-/**
- * @brief 可执行对象适配器，方便使用lambda表达式
- * @ingroup ThreadPool
- */
-class RunnableAdaptor : public Runnable
-{
-public:
-  RunnableAdaptor(std::function<void()> callable) : callable_(callable) {}
-
-  void run() override { callable_(); }
-
-private:
-  std::function<void()> callable_;
-};
+void cleanup_seda();
 
 }  // namespace common
+#endif  // __COMMON_SEDA_INIT_H__

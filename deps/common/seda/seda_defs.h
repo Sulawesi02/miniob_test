@@ -9,36 +9,22 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/01/11.
+// Created by Longda on 2021/4/21.
 //
 
-namespace common {
+#pragma once
 
-template <typename T>
-int SimpleQueue<T>::push(T &&value)
-{
-  std::lock_guard<std::mutex> lock(mutex_);
-  queue_.push(std::move(value));
-  return 0;
-}
+#define SEDA_BASE_NAME "SEDA_BASE"
+#define THREAD_POOLS_NAME "ThreadPools"
+#define STAGES "STAGES"
 
-template <typename T>
-int SimpleQueue<T>::pop(T &value)
-{
-  std::lock_guard<std::mutex> lock(mutex_);
-  if (queue_.empty()) {
-    return -1;
-  }
+#define EVENT_HISTORY "EventHistory"
+#define MAX_EVENT_HISTORY_NUM "MaxEventHistoryNum"
 
-  value = std::move(queue_.front());
-  queue_.pop();
-  return 0;
-}
+#define COUNT "count"
 
-template <typename T>
-int SimpleQueue<T>::size() const
-{
-  return queue_.size();
-}
+#define THREAD_POOL_ID "ThreadId"
 
-} // namespace common
+#define NEXT_STAGES "NextStages"
+#define DEFAULT_THREAD_POOL "DefaultThreads"
+#define METRCS_REPORT_INTERVAL "MetricsReportInterval"
