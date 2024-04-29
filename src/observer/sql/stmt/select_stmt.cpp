@@ -67,34 +67,29 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
     table_map.insert(std::pair<std::string, Table *>(table_name, table));
   }
 
-  bool have_aggr_ = false;
   // collect query fields in `select` statement
   std::vector<Field> query_fields;
   for (int i = static_cast<int>(select_sql.attributes.size()) - 1; i >= 0; i--) {
-    const RelAttrSqlNode &relation_attr     = select_sql.attributes[i];
-    const AggrOp          aggregation_      = relation_attr.aggregation;
-    bool                  have_aggregation_ = false;
-    bool                  valid_            = relation_attr.valid;
-    //聚合中出现多个属性或者空置的情况
+    const RelAttrSqlNode &relation_attr   = select_sql.attributes[i];
+    const AggrOp          aggregation_    = relation_attr.aggregation;  
+    bool                  is_aggregation_ = false;// 当前字段是否是聚合函数
+
+    bool valid_ = relation_attr.valid;//聚合是否合法
+    // 聚合中出现多个属性或者空置的情况
     if (!valid_) {
       return RC::INVALID_ARGUMENT;
     }
 
     if (aggregation_ != AggrOp::AGGR_NONE) {
-      have_aggregation_ = true;
-      have_aggr_        = true;
+      is_aggregation_ = true;
     }
 
-    if (have_aggr_ && !have_aggregation_) {
-      return RC::INVALID_ARGUMENT;
-    }
-
-    //如果是*
+    // 处理*
     if (common::is_blank(relation_attr.relation_name.c_str()) &&
         0 == strcmp(relation_attr.attribute_name.c_str(), "*")) {
-      
-      //如果聚合函数不为COUNT，则返回
-      if (have_aggregation_ && aggregation_ != AggrOp::AGGR_COUNT) {
+
+      // 如果是聚合函数，则只允许 COUNT 函数
+      if (is_aggregation_ && aggregation_ != AggrOp::AGGR_COUNT) {
         return RC::INVALID_ARGUMENT;
       }
 
@@ -123,7 +118,7 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
 
         Table *table = iter->second;
         if (0 == strcmp(field_name, "*")) {
-          if (have_aggregation_ && aggregation_ != AggrOp::AGGR_COUNT) {
+          if (is_aggregation_ && aggregation_ != AggrOp::AGGR_COUNT) {
             return RC::INVALID_ARGUMENT;
           }
           wildcard_fields(table, query_fields, aggregation_);

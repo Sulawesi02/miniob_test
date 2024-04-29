@@ -4,8 +4,10 @@
 #include "sql/parser/parse.h"
 #include "sql/expr/tuple.h"
 
-class Trx;
-class DeleteStmt;
+/**
+ * @brief 聚合物理算子
+ * @ingroup PhysicalOperator
+ */
 
 class AggregatePhysicalOperator : public PhysicalOperator
 {
