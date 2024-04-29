@@ -80,9 +80,9 @@ extern int yydebug;
     TRX_COMMIT = 281,              /* TRX_COMMIT  */
     TRX_ROLLBACK = 282,            /* TRX_ROLLBACK  */
     INT_T = 283,                   /* INT_T  */
-    DATE_T = 284,                  /* DATE_T  */
-    STRING_T = 285,                /* STRING_T  */
-    FLOAT_T = 286,                 /* FLOAT_T  */
+    STRING_T = 284,                /* STRING_T  */
+    FLOAT_T = 285,                 /* FLOAT_T  */
+    DATE_T = 286,                  /* DATE_T  */
     HELP = 287,                    /* HELP  */
     EXIT = 288,                    /* EXIT  */
     DOT = 289,                     /* DOT  */

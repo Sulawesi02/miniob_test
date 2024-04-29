@@ -409,11 +409,11 @@ static const flex_int16_t yy_accept[193] =
 
        45,   45,   45,   45,   45,   45,   45,   45,   37,   45,
        31,   32,   45,   45,   28,   45,   29,   45,   45,   45,
-       45,   45,    0,    0,   45,   19,   39,   45,   45,   45,
-       42,   38,   45,    9,   11,    7,   45,   45,   20,    8,
+       45,   45,    0,    0,   45,   19,   38,   45,   45,   45,
+       42,   40,   45,    9,   11,    7,   45,   45,   20,    8,
        45,   45,   45,   24,   41,   45,   45,   16,   17,   45,
        45,   45,   45,    0,    0,   34,   45,   33,   45,   45,
-       45,   40,   14,   45,   45,   45,   45,   12,   45,   45,
+       45,   39,   14,   45,   45,   45,   45,   12,   45,   45,
        21,    0,    0,   35,   10,   26,   45,   43,   23,   45,
        18,   13,   27,   25,   46,   46,   46,   46,   44,   45,
        36,    0
@@ -1220,17 +1220,17 @@ RETURN_TOKEN(INT_T);
 case 38:
 YY_RULE_SETUP
 #line 117 "lex_sql.l"
-RETURN_TOKEN(DATE_T);
+RETURN_TOKEN(STRING_T);
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 118 "lex_sql.l"
-RETURN_TOKEN(STRING_T);
+RETURN_TOKEN(FLOAT_T);
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 119 "lex_sql.l"
-RETURN_TOKEN(FLOAT_T);
+RETURN_TOKEN(DATE_T);
 	YY_BREAK
 case 41:
 YY_RULE_SETUP

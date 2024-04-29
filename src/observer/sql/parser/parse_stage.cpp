@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 
 #include "parse_stage.h"
+#include "value.cpp"
 
 #include "common/conf/ini.h"
 #include "common/io/io.h"
@@ -30,16 +31,15 @@ using namespace common;
 RC ParseStage::handle_request(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;
-  
-  SqlResult *sql_result = sql_event->session_event()->sql_result();
-  const std::string &sql = sql_event->sql();
+
+  SqlResult         *sql_result = sql_event->session_event()->sql_result();
+  const std::string &sql        = sql_event->sql();
 
   ParsedSqlResult parsed_sql_result;
 
-  try{
-  parse(sql.c_str(), &parsed_sql_result);
-  }
-  catch(...){
+  try {
+    parse(sql.c_str(), &parsed_sql_result);
+  } catch (...) {
     sql_result->set_return_code(RC::INVALID_ARGUMENT);
     return RC::INVALID_ARGUMENT;
   }
@@ -64,6 +64,7 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
   }
 
   sql_event->set_sql_node(std::move(sql_node));
-
+  if (!isValid)
+    sql_result->set_return_code(RC::EMPTY);
   return RC::SUCCESS;
 }

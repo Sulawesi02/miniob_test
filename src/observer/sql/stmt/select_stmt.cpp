@@ -74,6 +74,11 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
     const RelAttrSqlNode &relation_attr     = select_sql.attributes[i];
     const AggrOp          aggregation_      = relation_attr.aggregation;
     bool                  have_aggregation_ = false;
+    bool                  valid_            = relation_attr.valid;
+    //聚合中出现多个属性或者空置的情况
+    if (!valid_) {
+      return RC::INVALID_ARGUMENT;
+    }
 
     if (aggregation_ != AggrOp::AGGR_NONE) {
       have_aggregation_ = true;
@@ -84,14 +89,11 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
       return RC::INVALID_ARGUMENT;
     }
 
-    bool valid_ = relation_attr.valid;
-    if (!valid_) {
-      return RC::INVALID_ARGUMENT;
-    }
-
+    //如果是*
     if (common::is_blank(relation_attr.relation_name.c_str()) &&
         0 == strcmp(relation_attr.attribute_name.c_str(), "*")) {
-
+      
+      //如果聚合函数不为COUNT，则返回
       if (have_aggregation_ && aggregation_ != AggrOp::AGGR_COUNT) {
         return RC::INVALID_ARGUMENT;
       }
@@ -110,7 +112,7 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
           return RC::SCHEMA_FIELD_MISSING;
         }
         for (Table *table : tables) {
-          wildcard_fields(table, query_fields);
+          wildcard_fields(table, query_fields, aggregation_);
         }
       } else {
         auto iter = table_map.find(table_name);

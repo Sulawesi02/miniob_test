@@ -34,6 +34,6 @@ public:
 private:
   std::string table_name_;
   std::string field_name_;
-  std::string alias_;
+  std::string alias_;//字段的别名
   AggrOp      aggr_;
 };
