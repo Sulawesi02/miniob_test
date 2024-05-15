@@ -39,15 +39,15 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt)
 
   Table *table = db->find_table(table_name);
 
-
   if (nullptr == table) {
     LOG_WARN("no such table. db=%s, table_name=%s", db->name(), table_name);
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
 
   const FieldMeta *field_meta = table->table_meta().field(update_sql.attribute_name.c_str());
+
   if (nullptr == field_meta) {
-    LOG_WARN("no such field. field=%s.%s.%s", db->name(),table->name(), update_sql.attribute_name.c_str());
+    LOG_WARN("no such field. field=%s.%s.%s", db->name(), table->name(), update_sql.attribute_name.c_str());
     return RC::SCHEMA_FIELD_MISSING;
   }
 
@@ -58,11 +58,12 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt)
   RC          rc          = FilterStmt::create(
       db, table, &table_map, update_sql.conditions.data(), static_cast<int>(update_sql.conditions.size()), filter_stmt);
   if (rc != RC::SUCCESS) {
-    LOG_WARN("failed to create filter statement. rc=%d:%s", rc, strrc(rc));
+    LOG_WARN("cannot construct filter stmt");
     return rc;
   }
-  Value value = update_sql.value;
-  // Field field = update_sql.conditions.
-  stmt = new UpdateStmt(table, Field(table, field_meta), value, filter_stmt);
-  return rc;
+
+  UpdateStmt *update_stmt = new UpdateStmt(table, Field(table, field_meta), update_sql.value, filter_stmt);
+
+  stmt = update_stmt;
+  return RC::SUCCESS;
 }

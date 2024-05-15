@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/rc.h"
 #include "sql/stmt/stmt.h"
+#include "storage/db/db.h"
 #include "sql/stmt/filter_stmt.h"
 #include "sql/parser/parse_defs.h"
 
@@ -32,7 +33,6 @@ class UpdateStmt : public Stmt
 public:
   UpdateStmt() = default;
   UpdateStmt(Table *table, Field field, Value value, FilterStmt *filter_stmt);
-
   StmtType type() const override { return StmtType::UPDATE; }
 
 public:
