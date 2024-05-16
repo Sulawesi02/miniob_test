@@ -72,21 +72,20 @@ RC UpdatePhysicalOperator::next()
         }
       }
       // 重新构造record
-      // 1.Values
+      // 1. Values
       std::vector<Value> values;
       int                cell_num = row_tuple->cell_num();
       for (int i = 0; i < cell_num; i++) {
         Value cell;
-        if (target_index != i) {
-          row_tuple->cell_at(
-              i, cell);  // 如果当前单元不是目标字段的索引,从原始记录中获取第 i 个单元的值，并将其存储到 cell 中。
+        if (target_index == i) {
+          cell.set_value(value_);  // 如果当前单元是目标字段的索引，将目标字段的值 value_ 设置到 cell中
         } else {
-          cell.set_value(value_);  // 如果当前单元是目标字段的索引，将目标字段的值 value_ 设置到 cell
-                                   // 中。从而完成把想要设置的值设置进去的目的
+          row_tuple->cell_at(
+              i, cell);  // 如果当前单元不是目标字段的索引,从原始记录中获取第 i 个单元的值，并将其存储到 cell 中
         }
         values.emplace_back(cell);
       }
-      // 2.records
+      // 2. Records
       Record new_record;
       RC     rc = table_->make_record(
           cell_num, values.data(), new_record);  // 制造一条新纪录，传参属性个数，改后的值，空的新纪录
@@ -98,6 +97,7 @@ RC UpdatePhysicalOperator::next()
       insert_records.emplace_back(new_record);  // 把这个记录写入要插的记录里面
     }
   }
+
   for (size_t i = 0; i < insert_records.size(); ++i) {    // 遍历每个要插的记录
     rc = trx_->delete_record(table_, delete_records[i]);  // 删除之前存在delete_records里面的要删的记录
     if (rc != RC::SUCCESS) {

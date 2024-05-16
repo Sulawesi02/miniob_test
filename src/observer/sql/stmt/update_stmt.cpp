@@ -58,7 +58,7 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt)
   RC          rc          = FilterStmt::create(
       db, table, &table_map, update_sql.conditions.data(), static_cast<int>(update_sql.conditions.size()), filter_stmt);
   if (rc != RC::SUCCESS) {
-    LOG_WARN("cannot construct filter stmt");
+    LOG_WARN("failed to create filter statement. rc=%d:%s", rc, strrc(rc));
     return rc;
   }
 
