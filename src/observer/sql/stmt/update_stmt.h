@@ -46,7 +46,7 @@ public:
 
 private:
   Table      *table_ = nullptr;
-  Field       field_;
-  Value       value_;
+  const Field field_;
+  const Value value_;
   FilterStmt *filter_stmt_ = nullptr;
 };
