@@ -230,11 +230,15 @@ int Value::compare(const Value &other) const
     return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other_data);
   } else if (this->attr_type_ == CHARS && other.attr_type_ == INTS) {//如果当前对象是字符串类型，other对象是整数类型
     float other_data = other.num_value_.int_value_;//将other对象的整数值转换为浮点数
-    return common::compare_str_with_int((void *)this->str_value_.c_str(),this->str_value_.length(), (void *)&other_data);
+    return common::compare_str_with_int((void *)this->str_value_.c_str(), (void *)&other_data);
+  } else if (this->attr_type_ == INTS && other.attr_type_ == CHARS) {//如果当前对象是整数类型，other对象是字符串类型
+    float this_data = this.num_value_.int_value_;//将当前对象的整数值转换为浮点数
+    return common::compare_str_with_int((void *)this->str_value_.c_str(), (void *)&other_data);
   } else if (this->attr_type_ == CHARS && other.attr_type_ == FLOATS) {//如果当前对象是字符串类型，other对象是浮点数类型
-    float other_data = other.num_value_.int_value_;//将other对象的整数值转换为浮点数
-    return common::compare_str_with_int((void *)this->str_value_.c_str(),this->str_value_.length(), (void *)&other_data);
-  }
+    return common::compare_str_with_int((void *)this->str_value_.c_str(), (void *)&other_data);
+  } else if (this->attr_type_ == CHARS && other.attr_type_ == FLOATS) {//如果当前对象是浮点数类型，other对象是字符串类型
+    return common::compare_str_with_int((void *)this->str_value_.c_str(), (void *)&other_data);
+  } 
   LOG_WARN("not supported");
   return -1;  // TODO return rc?
 }
