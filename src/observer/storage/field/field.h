@@ -25,7 +25,6 @@ class Field
 {
 public:
   Field() = default;
-  // Field(const Table *table, const FieldMeta *field) : table_(table), field_(field){}
   Field(const Table *table, const FieldMeta *field, const AggrOp aggergation = AggrOp::AGGR_NONE)
       : table_(table), field_(field), aggergation_(aggergation)
   {}

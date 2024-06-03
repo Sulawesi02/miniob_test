@@ -15,6 +15,9 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <algorithm>
 #include "common/defs.h"
+#include <stdlib.h>
+#include <climits>
+#include <cmath>
 
 namespace common {
 
@@ -66,5 +69,36 @@ int compare_string(void *arg1, int arg1_max_length, void *arg2, int arg2_max_len
 }
 
 int compare_date(void *arg1, void *arg2) { return compare_int(arg1, arg2); }
+
+int compare_str_with_int(void *arg1, int arg1_max_length, void *arg2) {
+    const char *str     = (const char *)arg1;
+    int int_value = std::atoi(str);
+
+    int v2 = *(int *)arg2;
+
+    if (int_value > v2) {
+        return 1;
+    } else if (int_value < v2) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+int compare_str_with_float(void *arg1, int arg1_max_length, void *arg2) {
+    const char *str     = (const char *)arg1;
+    float float_value = std::atof(str);
+
+    float v2  = *(float *)arg2;
+
+    float cmp = float_value - v2;
+    if (cmp > EPSILON) {
+      return 1;
+    }
+    if (cmp < -EPSILON) {
+      return -1;
+    }
+    return 0;
+}
 
 }  // namespace common

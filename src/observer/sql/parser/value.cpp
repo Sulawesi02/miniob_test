@@ -198,8 +198,8 @@ std::string Value::to_string() const
 
 int Value::compare(const Value &other) const
 {
-  if (this->attr_type_ == other.attr_type_) {
-    switch (this->attr_type_) {
+  if (this->attr_type_ == other.attr_type_) {//如果当前对象和other对象的类型相同
+    switch (this->attr_type_) {//根据类型调用相应的比较函数
       case INTS: {
         return common::compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
       } break;
@@ -222,12 +222,18 @@ int Value::compare(const Value &other) const
         LOG_WARN("unsupported type: %d", this->attr_type_);
       }
     }
-  } else if (this->attr_type_ == INTS && other.attr_type_ == FLOATS) {
-    float this_data = this->num_value_.int_value_;
+  } else if (this->attr_type_ == INTS && other.attr_type_ == FLOATS) {//如果当前对象是整数类型，other对象是浮点数类型
+    float this_data = this->num_value_.int_value_;//将当前对象的整数值转换为浮点数
     return common::compare_float((void *)&this_data, (void *)&other.num_value_.float_value_);
-  } else if (this->attr_type_ == FLOATS && other.attr_type_ == INTS) {
-    float other_data = other.num_value_.int_value_;
+  } else if (this->attr_type_ == FLOATS && other.attr_type_ == INTS) {//如果当前对象是浮点数类型，other对象是整数类型
+    float other_data = other.num_value_.int_value_;//将other对象的整数值转换为浮点数
     return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other_data);
+  } else if (this->attr_type_ == CHARS && other.attr_type_ == INTS) {//如果当前对象是字符串类型，other对象是整数类型
+    float other_data = other.num_value_.int_value_;//将other对象的整数值转换为浮点数
+    return common::compare_str_with_int((void *)this->str_value_.c_str(),this->str_value_.length(), (void *)&other_data);
+  } else if (this->attr_type_ == CHARS && other.attr_type_ == FLOATS) {//如果当前对象是字符串类型，other对象是浮点数类型
+    float other_data = other.num_value_.int_value_;//将other对象的整数值转换为浮点数
+    return common::compare_str_with_int((void *)this->str_value_.c_str(),this->str_value_.length(), (void *)&other_data);
   }
   LOG_WARN("not supported");
   return -1;  // TODO return rc?

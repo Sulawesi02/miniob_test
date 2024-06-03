@@ -62,6 +62,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         COUNT_F
         CREATE
         DROP
+        INNER
         TABLE
         TABLES
         INDEX
@@ -108,6 +109,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %union {
   ParsedSqlNode *                   sql_node;
   ConditionSqlNode *                condition;
+  JoinSqlNode *                     join_sql_node;
   Value *                           value;
   enum CompOp                       comp;
   enum AggrOp                       aggregation;
@@ -130,6 +132,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %token <string> ID
 %token <string> DATE_STR
 %token <string> SSS
+%token <string> JOIN
 //非终结符
 
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
@@ -146,6 +149,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %type <attr_info>           attr_def
 %type <value_list>          value_list
 %type <condition_list>      where
+%type <join_sql_node>       join_list    
 %type <condition_list>      condition_list
 %type <rel_attr_list>       select_attr
 %type <relation_list>       rel_list
@@ -422,38 +426,45 @@ delete_stmt:    /*  delete 语句的语法解析树*/
 update_stmt:      /*  update 语句的语法解析树*/
     UPDATE ID SET ID EQ value where 
     {
-      $$ = new ParsedSqlNode(SCF_UPDATE);
-      $$->update.relation_name = $2;
-      $$->update.attribute_name = $4;
-      $$->update.value = *$6;
+      $$ = new ParsedSqlNode(SCF_UPDATE);// 创建一个SCF_UPDATE类型新节点
+      $$->update.relation_name = $2;//将表名赋值给新节点的 relation_name 成员
+      $$->update.attribute_name = $4;//将列名赋值给新节点的 attribute_name 成员
+      $$->update.value = *$6;//将值赋值给新节点的 value 成员
       if ($7 != nullptr) {
-        $$->update.conditions.swap(*$7);
+        $$->update.conditions.swap(*$7);//如果存在 WHERE 子句，将 WHERE 子句的条件赋值给新节点的 conditions 成员
         delete $7;
       }
       free($2);
       free($4);
     }
     ;
-select_stmt:        /*  select 语句的语法解析树*/
-    SELECT select_attr FROM ID rel_list where
+select_stmt:        /*  select 语句的语法解析树*/  //SELECT * FROM table1 INNER JOIN table2 ON table1.id=table2.id where
+    SELECT select_attr FROM ID rel_list join_list where
     {
-      $$ = new ParsedSqlNode(SCF_SELECT);
+      $$ = new ParsedSqlNode(SCF_SELECT);// 创建SELECT语句对应的数据结构
       if ($2 != nullptr) {
-        $$->selection.attributes.swap(*$2);
+        $$->selection.attributes.swap(*$2);// 将查询的全部字段存入attributes数组中
         delete $2;
       }
       if ($5 != nullptr) {
-        $$->selection.relations.swap(*$5);
+        $$->selection.relations.swap(*$5);// 将rel_list对应的多表存储relations数组中
         delete $5;
       }
-      $$->selection.relations.push_back($4);
+      $$->selection.relations.push_back($4);// 将查询的第一张表(ID)存入relations数组中
       std::reverse($$->selection.relations.begin(), $$->selection.relations.end());
 
-      if ($6 != nullptr) {
-        $$->selection.conditions.swap(*$6);
-        delete $6;
+      if ($7 != nullptr) {
+        $$->selection.conditions.swap(*$7);// 将查询的全部条件存储conditions数组中
+        delete $7;
       }
       free($4);
+
+      if($6 != nullptr)
+      {
+        $$->selection.relations.insert($$->selection.relations.end(),$6->relations.begin(),$6->relations.end());// 将join涉及到的表全部插入relations数组中
+        $$->selection.conditions.insert($$->selection.conditions.end(),$6->conditions.begin(),$6->conditions.end());// 将join涉及到的条件全部插入conditions数组中
+        delete $6;
+      }
     }
     ;
 calc_stmt:
@@ -636,6 +647,34 @@ rel_list:
       free($2);
     }
     ;
+
+join_list:
+    {
+      $$ = nullptr;
+    }
+    | INNER join_list {
+      $$ = $2;
+    }
+    | JOIN ID ON condition_list join_list {
+      $$ = new JoinSqlNode();
+
+      if ($4 != nullptr) {
+        $$->conditions.swap(*$4);
+        delete $4;
+      }
+
+      $$->relations.push_back($2);
+      // $$->conditions.push_back(*$4);
+      free($2);
+
+      if ($5 != nullptr) {
+        $$->relations.insert($$->relations.end(), $5->relations.begin(), $5->relations.end());
+        $$->conditions.insert($$->conditions.end(), $5->conditions.begin(), $5->conditions.end());
+        delete $5;
+      }
+    }
+    ;
+
 where:
     /* empty */
     {
